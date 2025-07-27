@@ -3,6 +3,7 @@ import ApiError from "../utils/apierror.js";
 import ApiResponse from "../utils/apiresponse.js";
 import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
 import { User } from "../models/user.model.js"
+import mongoose from "mongoose";
 
 const generateAccessandRefreshToken = async (id) => {
     try {
@@ -21,7 +22,7 @@ const generateAccessandRefreshToken = async (id) => {
 const registerUser = asyncHandler(async (req, res) => {
     const { name, username, email, contactNumber, dateofbirth, role, password, address } = req.body
 
-    if ([name, username, email, contactNumber, dateofbirth, role, password, address].some((field) => { field.trim() === "" })) {
+    if ([name, username, email, contactNumber, dateofbirth, role, password, address].some(field => !field || field.trim() === "")) {
         throw new ApiError(401, "All fields are required")
     }
 
@@ -72,7 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
     const { username, contactNumber, password } = req.body
 
-    if (!(username || contactNumber || password)) {
+    if (!(username && contactNumber && password)) {
         throw new ApiError(401, "All fields are required")
     }
 
@@ -108,11 +109,11 @@ const loginUser = asyncHandler(async (req, res) => {
         )
 })
 
-const logoutUser = asyncHandler(async (req,res)=>{
+const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.User._id,
         {
-            $unset:{
+            $unset: {
                 refreshToken: 1
             }
         }
@@ -124,16 +125,77 @@ const logoutUser = asyncHandler(async (req,res)=>{
     }
 
     return res
-    .status(200)
-    .clearcookie("accessToken",options)
-    .clearcookie("refreshToken",options)
-    .json(
-        new ApiResponse(200,{},"Logged out successfully")
-    )
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(
+            new ApiResponse(200, {}, "Logged out successfully")
+        )
 })
+
+const updatePassword = asyncHandler(async (req, res) => {
+    const { username } = req.params
+    const { oldPassword, newPassword } = req.body
+
+    if (!oldPassword || !newPassword) {
+        throw new ApiError(401, "All fields are required")
+    }
+
+    const existingUser = await User.findById(req.User?._id)
+
+    const verifyPassword = await existingUser.isPasswordCorrect(oldPassword)
+
+    if (!verifyPassword) {
+        throw new ApiError(402, "Incorrect password")
+    }
+
+    existingUser.password = newPassword
+    await existingUser.save({ validateBeforeSave: false })
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, "Password Updated successfully")
+        )
+})
+
+const updateAvatar = asyncHandler(async (req, res) => {
+    const { username } = req.params
+
+    const avatarlocalpath = req.files?.avatar[0].path
+
+    if (!avatarlocalpath) {
+        throw new ApiError(402, "Avatar upload failed")
+    }
+
+    const avatar = await uploadOnCloudinary(avatarlocalpath)
+
+    if (!avatar) {
+        throw new ApiError(402, "Cloudinary service error")
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.User?._id,
+        {
+            $set: {
+                avatar: avatar.url
+            }
+        },
+        { new: true }
+    )
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, user, "Avatar updated successfully")
+        )
+})
+
 
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    updatePassword,
+    updateAvatar
 }

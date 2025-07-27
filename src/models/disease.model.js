@@ -1,15 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 
 const DiseaseSchema = new mongoose.Schema({
-    nameofthePatient: {
+    patient: {
         type: Schema.Types.ObjectId,
         ref: "User"
     },
-    contactNumber: {
-        type: Schema.Types.ObjectId,
-        ref: "User"
-    },
-    nameoftheDisease: {
+    disease: {
         type: String,
         required: true,
         index: true,
@@ -29,7 +25,8 @@ const DiseaseSchema = new mongoose.Schema({
     nameoftheMedicine: {
         type: String,
         index: true,
-        trim: true
+        trim: true,
+        default:""
     },
     timeofStart: {
         type: Date,
@@ -37,7 +34,8 @@ const DiseaseSchema = new mongoose.Schema({
     },
     Appointments: {
         type: Schema.Types.ObjectId,
-        ref: "Appointments"
+        ref: "Appointments",
+          default: null
     }
 })
 

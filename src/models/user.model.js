@@ -20,7 +20,8 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         index: true,
-        trim: true
+        trim: true,
+        unique: true
     },
     contactNumber: {
         type: Number,
@@ -56,39 +57,40 @@ const UserSchema = new mongoose.Schema({
     },
     disease: {
         type: Schema.Types.ObjectId,
-        ref: "Disease"
+        ref: "Disease",
+        default: null
     },
-    appointments: {
+    appointments: [{
         type: Schema.Types.ObjectId,
-        ref: "Appointments"
-    }
+        ref: "Appointments",
+        default: []
+    }]
 }, { timestamps: true })
 
 UserSchema.pre("save", async function (next) {
-    if (this.isModified("password")) {
-        this.password = await bcrypt.hash(this.password, 10)
-        next()
-    }
+    if (!this.isModified("password")) return next();
+    this.password = await bcrypt.hash(this.password, 10)
+    next()
 })
 
 UserSchema.methods.isPasswordCorrect = async function (password) {
-    return await bcrypt.compare(password,this.password)
+    return await bcrypt.compare(password, this.password)
 }
 
-UserSchema.methods.generateAccessToken = function (){
+UserSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
-            _id :this._id,
-            username:this.username,
-            email:this.email,
-            contactNumber:this.contactNumber,
+            _id: this._id,
+            username: this.username,
+            email: this.email,
+            contactNumber: this.contactNumber,
             dateofbirth: this.dateofbirth,
-            role:this.role,
-            address:this.address
+            role: this.role,
+            address: this.address
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-             expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
         }
     )
 }
@@ -96,11 +98,11 @@ UserSchema.methods.generateAccessToken = function (){
 UserSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
-            _id:this._id
+            _id: this._id
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
-            expiresIn:process.env.REFRESH_TOKEN_EXPIRY
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
     )
 }

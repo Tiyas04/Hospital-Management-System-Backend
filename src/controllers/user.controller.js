@@ -3,7 +3,6 @@ import ApiError from "../utils/apierror.js";
 import ApiResponse from "../utils/apiresponse.js";
 import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
 import { User } from "../models/user.model.js"
-import mongoose from "mongoose";
 
 const generateAccessandRefreshToken = async (id) => {
     try {
@@ -190,7 +189,6 @@ const updateAvatar = asyncHandler(async (req, res) => {
             new ApiResponse(200, user, "Avatar updated successfully")
         )
 })
-
 
 export {
     registerUser,

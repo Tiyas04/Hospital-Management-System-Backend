@@ -73,7 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
     const { username, contactNumber, password } = req.body
 
-    if (!(username && contactNumber && password)) {
+    if (!(username && contactNumber) && !password) {
         throw new ApiError(401, "All fields are required")
     }
 

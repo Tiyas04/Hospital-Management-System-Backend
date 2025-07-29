@@ -2,6 +2,8 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import userRouter from "./routes/user.route.js"
+import patientRouter from "./routes/patient.route.js"
+import doctorRouter from "./routes/doctor.route.js"
 
 const app = express()
 
@@ -19,5 +21,7 @@ app.use(express.urlencoded({
 app.use(cookieParser())
 app.use(express.static("public"))
 app.use("/api/v1/user",userRouter)
+app.use("/api/v1/patient",patientRouter)
+app.use("/api/v1/doctor",doctorRouter)
 
 export default app

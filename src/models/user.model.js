@@ -64,7 +64,10 @@ const UserSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "Appointments",
         default: []
-    }]
+    }],
+    specialization: {
+        type: String
+    }
 }, { timestamps: true })
 
 UserSchema.pre("save", async function (next) {

@@ -7,7 +7,7 @@ const AppointmentSchema = new mongoose.Schema({
         required: true
     },
     contactNumber: {
-        type: Number,
+        type:Number,
         required: true
     },
     doctor: {

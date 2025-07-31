@@ -19,7 +19,7 @@ const generateAccessandRefreshToken = async (id) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, username, email, contactNumber, dateofbirth, role, password, address } = req.body
+    const { name, username, email, contactNumber, dateofbirth, role, password, address,specialization } = req.body
 
     if ([name, username, email, contactNumber, dateofbirth, role, password, address].some(field => !field || field.trim() === "")) {
         throw new ApiError(401, "All fields are required")
@@ -54,7 +54,8 @@ const registerUser = asyncHandler(async (req, res) => {
         role,
         password,
         address,
-        avatar: avatar.url
+        avatar: avatar.url,
+        specialization: specialization || null
     })
         .then((user) => {
             const { password, refreshToken, _id, __v, ...userData } = user._doc
@@ -190,10 +191,50 @@ const updateAvatar = asyncHandler(async (req, res) => {
         )
 })
 
+const getUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.User?._id).select("-password -_id -__v -refreshToken");
+
+    if(!user){
+        throw new ApiError(404, "User not found")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,user,"User fetched successfully")
+    )
+})
+
+const searchDoctor = asyncHandler(async (req, res) => {
+    const { query } = req.query;
+
+    if (!query) {
+        throw new ApiError(400, "Search query is required");
+    }
+
+    const doctors = await User.find({
+        role: "doctor",
+        $or: [
+            { name: { $regex: query, $options: "i" } },
+            { specialization: { $regex: query, $options: "i" } }
+        ]
+    });
+
+    if(!doctors || doctors.length === 0) {
+        throw new ApiError(404, "No doctors found matching the search criteria");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, doctors, "Doctors fetched successfully"));
+})
+
 export {
     registerUser,
     loginUser,
     logoutUser,
     updatePassword,
-    updateAvatar
+    updateAvatar,
+    getUser,
+    searchDoctor
 }

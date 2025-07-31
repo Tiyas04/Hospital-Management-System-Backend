@@ -6,55 +6,41 @@ import { User } from "../models/user.model.js"
 import mongoose from "mongoose"
 
 const bookAppointment = asyncHandler(async (req, res) => {
-    const { doctorId } = req.params
     const { dateandTime, contactNumber, reasonforvisit } = req.body
 
-    if ([dateandTime, contactNumber, reasonforvisit, doctorId].some(field => !field || (typeof field === 'string' && field.trim() === ""))) {
-        throw new ApiError(400, "All fields are required")
-    }
+    const doctorname = req.query.doctorname
+    
+    const doctor = await User.findOne({ name: doctorname, role: 'doctor' }).select('_id');
+    
+    if (!doctor) throw new ApiError(404, "Doctor not found");
+    const doctorId = doctor._id;
 
-    const doctor = await User.findById(doctorId)
-    if (!doctor || doctor.role !== 'Doctor') {
-        throw new ApiError(404, "Doctor not found")
+
+    if ([dateandTime, contactNumber, reasonforvisit].some(field => field.trim() === "")) {
+        throw new ApiError(400, "All fields are required")
     }
 
     const existingAppointment = await Appointments.findOne({
         doctor: doctorId,
-        dateandTime: new Date(dateandTime),
-        status: { $nin: ['cancelled', 'completed'] }
+        dateandTime: new Date(dateandTime)
     })
-
     if (existingAppointment) {
-        throw new ApiError(409, "Appointment slot is already booked")
+        throw new ApiError(409, "Doctor is already booked for this time slot")
     }
-
-    const appointment = await Appointments.create({
+    const newAppointment = await Appointments.create({
         patient: req.User._id,
-        doctor: doctorId,
         contactNumber,
+        doctor: doctorId,
         dateandTime: new Date(dateandTime),
         reasonforvisit
     })
-
-    await User.findByIdAndUpdate(req.User._id, {
-        $push: { appointments: appointment._id }
-    })
-    
-    await User.findByIdAndUpdate(doctorId, {
-        $push: { appointments: appointment._id }
-    })
-
-    const populatedAppointment = await Appointments.findById(appointment._id)
-        .populate('patient', 'name email contactNumber avatar address')
-        .populate('doctor', 'name email contactNumber avatar address')
-
     return res.status(201).json(
-        new ApiResponse(201, populatedAppointment, "Appointment requested successfully")
+        new ApiResponse(201, newAppointment, "Appointment booked successfully")
     )
 })
 
 const getDoctorAppointments = asyncHandler(async (req, res) => {
-    const { status } = req.query 
+    const { status } = req.query
 
     const matchCondition = {
         doctor: new mongoose.Types.ObjectId(req.User._id)
@@ -103,7 +89,7 @@ const getDoctorAppointments = asyncHandler(async (req, res) => {
         },
         {
             $project: {
-                patientDetails: 0 
+                patientDetails: 0
             }
         },
         {
@@ -205,7 +191,7 @@ const getAppointmentById = asyncHandler(async (req, res) => {
     }
 
     let appointmentData = appointment.toObject()
-    
+
     if (userIsDoctor) {
         const patientMedicalHistory = await mongoose.model('Disease').find({
             patient: appointment.patient._id
@@ -228,7 +214,7 @@ const updateAppointmentStatus = asyncHandler(async (req, res) => {
     }
 
     const appointment = await Appointments.findById(appointmentId)
-    
+
     if (!appointment) {
         throw new ApiError(404, "Appointment not found")
     }
@@ -242,7 +228,7 @@ const updateAppointmentStatus = asyncHandler(async (req, res) => {
         { status },
         { new: true }
     ).populate('patient', 'name email contactNumber avatar')
-     .populate('doctor', 'name email contactNumber avatar')
+        .populate('doctor', 'name email contactNumber avatar')
 
     return res.status(200).json(
         new ApiResponse(200, updatedAppointment, `Appointment status updated to ${status}`)
@@ -253,7 +239,7 @@ const cancelAppointment = asyncHandler(async (req, res) => {
     const { appointmentId } = req.params
 
     const appointment = await Appointments.findById(appointmentId)
-    
+
     if (!appointment) {
         throw new ApiError(404, "Appointment not found")
     }
@@ -271,7 +257,7 @@ const cancelAppointment = asyncHandler(async (req, res) => {
         { status: 'cancelled' },
         { new: true }
     ).populate('patient', 'name email contactNumber')
-     .populate('doctor', 'name email contactNumber')
+        .populate('doctor', 'name email contactNumber')
 
     return res.status(200).json(
         new ApiResponse(200, cancelledAppointment, "Appointment cancelled successfully")

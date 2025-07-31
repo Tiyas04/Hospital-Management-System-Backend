@@ -14,7 +14,7 @@ const generateReceipt = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Appointment not found");
     }
 
-    if (appointment.status !== "Completed") {
+    if (appointment.status !== "completed") {
         throw new ApiError(400, "Receipt can only be generated for completed appointments");
     }
 

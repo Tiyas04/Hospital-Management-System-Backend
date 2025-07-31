@@ -11,7 +11,7 @@ const diseaseRecord = asyncHandler(async (req,res) =>{
     }
 
     const newDisease = await Disease.create({
-        patient: req.User._id,
+        patient: req.params.patientId,
         disease,
         symptom,
         medicinesUsed,

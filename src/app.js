@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser"
 import userRouter from "./routes/user.route.js"
 import patientRouter from "./routes/patient.route.js"
 import doctorRouter from "./routes/doctor.route.js"
-import dashboardRoutes from "./routes/dashboard.routes.js"
+import dashboardRoutes from "./routes/dashboard.route.js"
 
 const app = express()
 

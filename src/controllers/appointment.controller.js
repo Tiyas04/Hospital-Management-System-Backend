@@ -264,11 +264,24 @@ const cancelAppointment = asyncHandler(async (req, res) => {
     )
 })
 
+const getPreviousAppointments = asyncHandler(async (req, res) => {
+    const previousAppointments = await Appointments.find({
+        patient: req.User._id,
+        status: { $in: ['completed', 'cancelled'] }
+    }).populate('doctor', 'name email contactNumber avatar address')
+        .sort({ dateandTime: -1 })
+
+    return res.status(200).json(
+        new ApiResponse(200, previousAppointments, "Previous appointments fetched successfully")
+    )
+})
+
 export {
     bookAppointment,
     getDoctorAppointments,
     getPatientAppointments,
     getAppointmentById,
     updateAppointmentStatus,
-    cancelAppointment
+    cancelAppointment,
+    getPreviousAppointments
 }

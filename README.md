@@ -94,7 +94,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 ## ✅ API Endpoints Summary
 
-## 🔐 Auth & User
+### 🔐 Auth & User
 
 | Method | Route                        | Description                    |
 | ------ | ---------------------------- | ------------------------------ |
@@ -106,7 +106,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 | GET    | `/api/user`                  | Get logged-in user             |
 | GET    | `/api/doctors/search?query=` | Search doctors                 |
 
-## 📅 Appointments
+### 📅 Appointments
 
 | Method | Route                                     | Description                              |
 | ------ | ----------------------------------------- | -----------------------------------------|
@@ -131,12 +131,12 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 ## 🧪 Run Locally
 
-# Install dependencies
+### Install dependencies
 npm install
 
-# Set up .env file
+### Set up .env file
 
-# Start the server
+### Start the server
 npm run dev
 
 ---

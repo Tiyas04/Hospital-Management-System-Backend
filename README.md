@@ -94,30 +94,49 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 ## ✅ API Endpoints Summary
 
-### 🔐 Auth & User
+### 👤 User Management
 
-| Method | Route                        | Description                    |
-| ------ | ---------------------------- | ------------------------------ |
-| POST   | `/api/register`              | Register user (doctor/patient) |
-| POST   | `/api/login`                 | Login and receive tokens       |
-| POST   | `/api/logout`                | Logout and clear tokens        |
-| PUT    | `/api/password/:username`    | Change password                |
-| PUT    | `/api/avatar/:username`      | Update avatar                  |
-| GET    | `/api/user`                  | Get logged-in user             |
-| GET    | `/api/doctors/search?query=` | Search doctors                 |
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | /api/v1/user/register | Register user (doctor/patient) |
+| POST | /api/v1/user/login | Login and receive tokens |
+| POST | /api/v1/user/logout | Logout and clear tokens |
+| PATCH | /api/v1/user/:username/updatepassword | Change password |
+| PATCH | /api/v1/user/:username/updateavatar | Update avatar |
+| GET | /api/v1/user/profile | Get logged-in user |
+| GET | /api/v1/user/searchdoctor | Search doctors |
+| GET | /api/v1/user/appointments/:appointmentId | View appointment by ID |
+| GET | /api/v1/user/:patientId/diseaserecord | Get disease records |
 
 ### 📅 Appointments
 
-| Method | Route                                     | Description                              |
-| ------ | ----------------------------------------- | -----------------------------------------|
-| POST   | `/api/appointments/book?doctorname=`      | Book appointment                         |
-| GET    | `/api/appointments/doctor?status=`        | Doctor's appointments                    |
-| GET    | `/api/appointments/patient?status=`       | Patient's appointments                   |
-| GET    | `/api/appointments/:appointmentId`        | View appointment by ID                   |
-| PUT    | `/api/appointments/:appointmentId/status` | Update status (doctor only)              |
-| PUT    | `/api/appointments/:appointmentId/cancel` | Cancel appointment (patient only)        |
-| POST   | `/api/appointments/:appointmentId/generate-receipt` | Generate receipt (doctor only) |
-| GET    | `/api/appointments/:appointmentId/get-receipt` | Get receipt by appointment ID       |
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | /api/v1/patient/appointments/:doctorId/book | Book appointment |
+| GET | /api/v1/doctor/appointments | Doctor's appointments |
+| GET | /api/v1/patient/appointments | Patient's appointments |
+| GET | /api/v1/patient/appointments/previous | Previous appointments |
+| PATCH | /api/v1/doctor/appointments/:appointmentId/status | Update status (doctor only) |
+| PATCH | /api/v1/patient/appointments/:appointmentId/cancel | Cancel appointment (patient only) |
+
+### 🧾 Receipts
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | /api/v1/doctor/appointments/:appointmentId/generate-receipt | Generate receipt (doctor only) |
+| GET | /api/v1/patient/appointments/:appointmentId/get-receipt | Get receipt (patient only) |
+
+### 🏥 Medical Records
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | /api/v1/patient/disease | Record disease information |
+
+### 📊 Dashboard
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | /api/v1/dashboard | Get dashboard statistics |
 
 ---
 

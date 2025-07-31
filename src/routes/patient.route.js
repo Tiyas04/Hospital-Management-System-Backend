@@ -7,6 +7,7 @@ import {
     getPatientAppointments,
     getPreviousAppointments
 } from "../controllers/appointment.controller.js";
+import { getReceipt } from "../controllers/receipt.controller.js";
 
 const router = Router()
 
@@ -14,5 +15,6 @@ router.route("/appointments").get(verifyJWT, authorizeRole("Patient"), getPatien
 router.route("/appointments/:doctorId/book").post(verifyJWT, authorizeRole("Patient"), bookAppointment)
 router.route("/appointments/:appointmentId/cancel").patch(verifyJWT, authorizeRole("Patient"), cancelAppointment)
 router.route("/appointments/previous").get(verifyJWT, authorizeRole("Patient"), getPreviousAppointments)
+router.route("/appointments/:appointmentId/generate-receipt").get(verifyJWT, authorizeRole("Patient"), getReceipt)
 
 export default router
